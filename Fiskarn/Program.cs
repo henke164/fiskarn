@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Windows.Forms;
 
 namespace Fiskarn
 {
@@ -7,9 +7,14 @@ namespace Fiskarn
         static void Main(string[] args)
         {
             var bot = new FishingBot();
+
             bot.Start();
 
-            Console.ReadLine();
+            var overlay = new Overlay(bot);
+
+            Application.EnableVisualStyles();
+
+            Application.Run(overlay);
         }
     }
 }

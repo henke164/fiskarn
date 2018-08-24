@@ -55,6 +55,9 @@
   <ItemGroup>
     <Compile Include="BotState.cs" />
     <Compile Include="FishingBot.cs" />
+    <Compile Include="Overlay.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Services\ImageLocator.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

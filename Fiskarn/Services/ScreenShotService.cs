@@ -6,13 +6,24 @@ namespace Fiskarn.Services
 {
     public class ScreenShotService
     {
-        public Bitmap CaptureScreenShot(Point center, Size screenshotSize)
+        public Rectangle CreateRectangleFromCenterPoint(Point center, Size size)
+            => new Rectangle(
+                center.X - (size.Width / 2),
+                center.Y - (size.Height / 2),
+                size.Width,
+                size.Height);
+
+        public Bitmap CaptureScreenShot(Rectangle screenshotRectangle)
         {
-            var screenshotRectangle = new Rectangle(
-                center.X - (screenshotSize.Width / 2),
-                center.Y - (screenshotSize.Height / 2),
-                screenshotSize.Width,
-                screenshotSize.Height);
+            if (screenshotRectangle.X < 0)
+            {
+                screenshotRectangle.X = 0;
+            }
+
+            if (screenshotRectangle.Y < 0)
+            {
+                screenshotRectangle.Y = 0;
+            }
 
             var bounds = Screen.GetBounds(Point.Empty);
 
