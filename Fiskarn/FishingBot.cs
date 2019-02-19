@@ -51,7 +51,7 @@ namespace Fiskarn
                 if (_tries > 5)
                 {
                     _tries = 0;
-                    //SendKeys.SendWait("1");
+                    SendKeys.SendWait("1");
                     Thread.Sleep(1500);
                 }
                 FindBaitLocation();
