@@ -1,4 +1,5 @@
-﻿using System.Windows.Forms;
+﻿using Fiskarn.Services;
+using System.Windows.Forms;
 
 namespace Fiskarn
 {
@@ -6,11 +7,13 @@ namespace Fiskarn
     {
         static void Main(string[] args)
         {
+            var windowHandler = new GameWindowHandler();
+
             var bot = new FishingBot();
 
             bot.Start();
 
-            var overlay = new Overlay(bot);
+            var overlay = new Overlay(bot, windowHandler);
 
             Application.EnableVisualStyles();
 

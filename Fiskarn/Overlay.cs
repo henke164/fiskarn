@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Fiskarn.Services;
+using System;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -9,7 +10,7 @@ namespace Fiskarn
         private FishingBot _bot;
         private Timer _timer;
 
-        public Overlay(FishingBot bot)
+        public Overlay(FishingBot bot, GameWindowHandler windowHandler)
         {
             _bot = bot;
 
@@ -19,18 +20,32 @@ namespace Fiskarn
             Bounds = Screen.PrimaryScreen.Bounds;
             TopMost = true;
 
-            var button = new Button
+            var reinitializeButton = new Button
             {
                 Location = new Point(0, 0),
+                Text = "Reinitialize",
+                BackColor = Color.Pink
+            };
+
+            reinitializeButton.Click += (object sender, EventArgs e) =>
+            {
+                windowHandler.ReinitializeWindowPositions();
+            };
+
+            Controls.Add(reinitializeButton);
+
+            var exitButton = new Button
+            {
+                Location = new Point(0, 20),
                 Text = "Exit",
                 BackColor = Color.Pink
             };
 
-            button.Click += (object sender, EventArgs e) => {
+            exitButton.Click += (object sender, EventArgs e) => {
                 Application.Exit();
             };
 
-            Controls.Add(button);
+            Controls.Add(exitButton);
 
             _timer = new Timer();
             _timer.Tick += Update;
