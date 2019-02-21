@@ -75,7 +75,7 @@ namespace Fiskarn
             else if (_currentState == BotState.Loot)
             {
                 Thread.Sleep(1000);
-                Console.WriteLine("Clicking");
+                Console.WriteLine("Clicking at " + CurrentBaitLocation.X + " " + CurrentBaitLocation.Y);
                 HandleMouseClick(CurrentBaitLocation);
                 _currentState = BotState.FindBaitLocation;
                 Thread.Sleep(1000);
@@ -133,13 +133,19 @@ namespace Fiskarn
 
         private void HandleKeyboardPress(string key)
         {
-            SetForegroundWindow(_gameWindow.GameProcess.MainWindowHandle);
-            SendKeys.SendWait(key);
+            InteractionHandler.QueueInteraction(() =>
+            {
+                SetForegroundWindow(_gameWindow.GameProcess.MainWindowHandle);
+                SendKeys.SendWait(key);
+            });
         }
 
         private void HandleMouseClick(Point screenPoint)
-            => InputHandler.RightMouseClick(
-                _gameWindow.WindowRectangle.X + screenPoint.X + 10,
-                _gameWindow.WindowRectangle.Y + screenPoint.Y + 10);
+        {
+            InteractionHandler.QueueInteraction(() => 
+            { 
+                InputHandler.RightMouseClick(screenPoint.X, screenPoint.Y);
+            });
+        }
     }
 }

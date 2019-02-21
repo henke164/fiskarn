@@ -20,24 +20,22 @@ namespace Fiskarn
                 Bots.Add(new FishingBot(gameWindow));
             }
 
-            InitializeOverlay();
-
             RunBots();
 
-            while (true) ;
+            InitializeOverlay();
         }
 
         private static void RunBots()
         {
-            Task.Run(() => {
-                while (true)
-                {
-                    foreach (var bot in Bots)
+            foreach (var bot in Bots)
+            {
+                Task.Run(() => {
+                    while (true)
                     {
                         bot.Update();
                     }
-                }
-            });
+                });
+            }
         }
 
         private static void InitializeOverlay()

@@ -18,7 +18,7 @@ namespace Fiskarn.Services
         public void ReinitializeGameWindows()
         {
             GameWindows = new List<GameWindow>();
-            var processes = Process.GetProcessesByName("mspaint");
+            var processes = Process.GetProcessesByName("wow");
             var windowsPerRow = processes.Length > 3 ? 3 : processes.Length;
             var windowWidth = Screen.PrimaryScreen.Bounds.Width / windowsPerRow;
             SetWindowSizeAndPosition(processes, windowWidth);
