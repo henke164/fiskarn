@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Fiskarn.Models;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
@@ -9,20 +10,20 @@ namespace Fiskarn.Services
 {
     public class GameWindowHandler
     {
-        public IList<Rectangle> GameWindowsBounds { get; private set; }
+        public IList<GameWindow> GameWindows { get; private set; }
 
         [DllImport("user32.dll", SetLastError = true)]
         internal static extern bool MoveWindow(IntPtr hWnd, int X, int Y, int nWidth, int nHeight, bool bRepaint);
         
-        public void ReinitializeWindowPositions()
+        public void ReinitializeGameWindows()
         {
-            GameWindowsBounds = new List<Rectangle>();
+            GameWindows = new List<GameWindow>();
             var processes = Process.GetProcessesByName("mspaint");
             var windowsPerRow = processes.Length > 3 ? 3 : processes.Length;
             var windowWidth = Screen.PrimaryScreen.Bounds.Width / windowsPerRow;
             SetWindowSizeAndPosition(processes, windowWidth);
         }
-
+        
         private void SetWindowSizeAndPosition(Process[] processes, int width)
         {
             var height = (int)(width * 0.75);
@@ -40,7 +41,11 @@ namespace Fiskarn.Services
                     rectangle.Height, 
                     true);
 
-                GameWindowsBounds.Add(rectangle);
+                GameWindows.Add(new GameWindow
+                {
+                    GameProcess = processes[i],
+                    WindowRectangle = rectangle
+                });
 
                 if (left == 3)
                 {

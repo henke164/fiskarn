@@ -49,6 +49,7 @@
   <ItemGroup>
     <Compile Include="BotState.cs" />
     <Compile Include="FishingBot.cs" />
+    <Compile Include="Models\GameWindow.cs" />
     <Compile Include="Overlay.cs">
       <SubType>Form</SubType>
     </Compile>

@@ -1,57 +1,68 @@
-﻿using Fiskarn.Services;
+﻿using Fiskarn.Models;
+using Fiskarn.Services;
 using System;
 using System.Configuration;
 using System.Drawing;
+using System.Runtime.InteropServices;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Fiskarn
 {
     public class FishingBot
     {
+        [DllImport("User32.dll")]
+        static extern int SetForegroundWindow(IntPtr point);
+
         public Point CurrentBaitLocation { get; set; }
+
         public Rectangle ScanArea { get; set; }
 
+        private GameWindow _gameWindow;
+
         private Size _baitScanSize = new Size(5, 5);
+
         private BotState _currentState;
 
         private ScreenShotService _screenshotService;
+
         private ImageLocator _imageLocator;
 
         private int _tries = 0;
 
-        public FishingBot()
+        public FishingBot(GameWindow gameWindow)
+        {
+            _gameWindow = gameWindow;
+
+            LoadScanSize();
+
+            _screenshotService = new ScreenShotService();
+
+            _imageLocator = new ImageLocator();
+
+            _currentState = BotState.FindBaitLocation;
+
+            var screenCenter = new Point(
+                _gameWindow.WindowRectangle.X + (_gameWindow.WindowRectangle.Width / 2),
+                _gameWindow.WindowRectangle.Y + (_gameWindow.WindowRectangle.Height / 2));
+            
+            ScanArea = _screenshotService.CreateRectangleFromCenterPoint(screenCenter, new Size(400, 100));
+        }
+
+        private void LoadScanSize()
         {
             var scanSize = int.Parse(ConfigurationSettings.AppSettings.Get("scansize"));
             _baitScanSize = new Size(scanSize, scanSize);
-            _screenshotService = new ScreenShotService();
-            _imageLocator = new ImageLocator();
-            _currentState = BotState.FindBaitLocation;
-
-            var screenCenter = new Point(Screen.PrimaryScreen.Bounds.Width / 2, Screen.PrimaryScreen.Bounds.Height / 2);
-            var screenScanSize = new Size(400, 100);
-            ScanArea = _screenshotService.CreateRectangleFromCenterPoint(screenCenter, screenScanSize);
-        }
-
-        public void Start()
-        {
-            Task.Run(() => {
-                while (true)
-                {
-                    Update();
-                }
-            });
         }
         
-        private void Update()
+        public void Update()
         {
             if (_currentState == BotState.FindBaitLocation)
             {
                 if (_tries > 5)
                 {
                     _tries = 0;
-                    SendKeys.SendWait("1");
+                    HandleKeyboardPress("1");
                     Thread.Sleep(1500);
                 }
                 FindBaitLocation();
@@ -65,10 +76,10 @@ namespace Fiskarn
             {
                 Thread.Sleep(1000);
                 Console.WriteLine("Clicking");
-                InputHandler.RightMouseClick(CurrentBaitLocation.X + 10, CurrentBaitLocation.Y + 10);
+                HandleMouseClick(CurrentBaitLocation);
                 _currentState = BotState.FindBaitLocation;
                 Thread.Sleep(1000);
-                SendKeys.SendWait("1");
+                HandleKeyboardPress("1");
                 Thread.Sleep(1500);
             }
             Thread.Sleep(100);
@@ -120,14 +131,15 @@ namespace Fiskarn
             Thread.Sleep(1500);
         }
 
-        private Point ToScreenPosition(Point center, Point innerPoint, Size scanSize)
-            => new Point(center.X - (scanSize.Width / 2) + innerPoint.X,
-                (center.Y - (scanSize.Height / 2) + innerPoint.Y));
-
-        private Point GetScreenCenter()
+        private void HandleKeyboardPress(string key)
         {
-            var bounds = Screen.PrimaryScreen.Bounds;
-            return new Point(bounds.Width / 2, bounds.Height / 2);
+            SetForegroundWindow(_gameWindow.GameProcess.MainWindowHandle);
+            SendKeys.SendWait(key);
         }
+
+        private void HandleMouseClick(Point screenPoint)
+            => InputHandler.RightMouseClick(
+                _gameWindow.WindowRectangle.X + screenPoint.X + 10,
+                _gameWindow.WindowRectangle.Y + screenPoint.Y + 10);
     }
 }
