@@ -49,8 +49,8 @@ namespace Fiskarn
 
             _timer = new Timer();
             _timer.Tick += Update;
-            _timer.Interval = 10;
-            //_timer.Start();
+            _timer.Interval = 1000;
+            _timer.Start();
         }
 
         private void Update(object sender, EventArgs e)
@@ -58,10 +58,9 @@ namespace Fiskarn
             using (var g = CreateGraphics())
             {
                 g.Clear(Color.White);
-                g.DrawRectangle(Pens.Orange, new Rectangle(_bot.CurrentBaitLocation, new Size(20, 20)));
-                g.DrawRectangle(Pens.Pink, new Rectangle(_bot.CurrentBaitLocation, new Size(20, 20)));
                 g.DrawRectangle(Pens.Red, _bot.ScanArea);
             }
+            _timer.Stop();
         }
     }
 }

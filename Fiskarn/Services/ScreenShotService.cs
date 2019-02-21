@@ -25,16 +25,20 @@ namespace Fiskarn.Services
                 screenshotRectangle.Y = 0;
             }
 
-            var bounds = Screen.GetBounds(Point.Empty);
-
-            using (var bitmap = new Bitmap(bounds.Width, bounds.Height))
+            using (var bitmap = new Bitmap(screenshotRectangle.Width, screenshotRectangle.Height))
             {
                 using (var g = Graphics.FromImage(bitmap))
                 {
-                    g.CopyFromScreen(Point.Empty, Point.Empty, bounds.Size);
+                    g.CopyFromScreen(
+                        screenshotRectangle.X, 
+                        screenshotRectangle.Y,
+                        0,
+                        0,
+                        screenshotRectangle.Size,
+                        CopyPixelOperation.SourceCopy);
                 }
-
-                return bitmap.Clone(screenshotRectangle, PixelFormat.Format24bppRgb);
+                var image = (Bitmap)bitmap.Clone();
+                return image;
             }
         }
     }

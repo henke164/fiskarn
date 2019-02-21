@@ -1,43 +1,46 @@
-﻿using AForge.Imaging;
-using System;
-using System.Configuration;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.Linq;
+﻿using System.Drawing;
 
 namespace Fiskarn.Services
 {
     public class ImageLocator
     {
-        private readonly float _sensitivity = 0.9f;
-
-        public ImageLocator()
+        public Point FindInImage(Bitmap sourceImage)
         {
-            var sensitivity = ConfigurationSettings.AppSettings.Get("sensitivity").Replace('.', ',');
-            _sensitivity = float.Parse(sensitivity);
-            Console.WriteLine($"Sensitivity: {_sensitivity}.");
-        }
+            RedPixel redpoint = null;
 
-        public Point FindInImage(Bitmap template, Bitmap sourceImage)
-        {
-            var tm = new ExhaustiveTemplateMatching(_sensitivity);
+            for (var x = 0; x < sourceImage.Width; x += 2)
+            {
+                for (var y = 0; y < sourceImage.Height; y += 2)
+                {
+                    var pixel = sourceImage.GetPixel(x, y);
+                    if (pixel.R > pixel.B && pixel.R > pixel.G && pixel.R > 100 && pixel.R < 250)
+                    {
+                        if (redpoint == null || pixel.R > redpoint.RedAmount)
+                        {
+                            redpoint = new RedPixel
+                            {
+                                RedAmount = pixel.R,
+                                X = x,
+                                Y = y
+                            };
+                        }
+                    }
+                }
+            }
 
-            var matchings = tm.ProcessImage(sourceImage, template);
-
-            var data = sourceImage.LockBits(
-                 new Rectangle(0, 0, sourceImage.Width, sourceImage.Height),
-                 ImageLockMode.ReadWrite, sourceImage.PixelFormat);
-
-            var matching = matchings.FirstOrDefault();
-
-            sourceImage.UnlockBits(data);
-
-            if (matching == null)
+            if (redpoint == null)
             {
                 return Point.Empty;
             }
 
-            return new Point(matching.Rectangle.X, matching.Rectangle.Y);
+            return new Point(redpoint.X, redpoint.Y);
+        }
+
+        internal class RedPixel
+        {
+            public int RedAmount { get; set; }
+            public int X { get; set; }
+            public int Y { get; set; }
         }
     }
 }
