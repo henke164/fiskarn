@@ -36,7 +36,7 @@ namespace Fiskarn
             _timer = new Timer();
             _timer.Tick += Update;
             _timer.Interval = 1000;
-            _timer.Start();
+            //_timer.Start();
         }
 
         private void Update(object sender, EventArgs e)
@@ -46,7 +46,7 @@ namespace Fiskarn
                 g.Clear(Color.White);
                 foreach (var b in _bots)
                 {
-                    g.DrawRectangle(Pens.Red, b.ScanArea);
+                    g.DrawRectangle(Pens.Green, b.ScanArea);
                 }
             }
         }

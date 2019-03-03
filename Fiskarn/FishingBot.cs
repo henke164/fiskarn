@@ -30,13 +30,13 @@ namespace Fiskarn
 
         private int _tries = 0;
 
-        public FishingBot(GameWindow gameWindow)
+        public FishingBot(ScreenShotService screenshotService, GameWindow gameWindow)
         {
             _gameWindow = gameWindow;
 
             LoadScanSize();
 
-            _screenshotService = new ScreenShotService();
+            _screenshotService = screenshotService;
 
             _imageLocator = new ImageLocator();
 
@@ -55,7 +55,7 @@ namespace Fiskarn
             _baitScanSize = new Size(scanSize, scanSize);
         }
         
-        public void Update()
+        public void Update(Bitmap screenShot)
         {
             if (_currentState == BotState.FindBaitLocation)
             {
@@ -65,12 +65,12 @@ namespace Fiskarn
                     HandleKeyboardPress("1");
                     Thread.Sleep(1500);
                 }
-                FindBaitLocation();
+                FindBaitLocation(screenShot);
             }
             else if (_currentState == BotState.WaitForBait)
             {
                 _tries = 0;
-                WaitForBait();
+                WaitForBait(screenShot);
             }
             else if (_currentState == BotState.Loot)
             {
@@ -85,17 +85,17 @@ namespace Fiskarn
             Thread.Sleep(100);
         }
 
-        private void WaitForBait()
+        private void WaitForBait(Bitmap screenShot)
         {
             var rect = _screenshotService.CreateRectangleFromCenterPoint(CurrentBaitLocation, _baitScanSize);
-            var bait = _screenshotService.CaptureScreenShot(rect);
+            var bait = _screenshotService.GetScreenshotFromImage(screenShot, rect);
             var baitStill = false;
             for (var x = 0; x < rect.Width; x++)
             {
                 for (var y = 0; y < rect.Height; y++)
                 {
                     var pixel = bait.GetPixel(x, y);
-                    if (pixel.R > pixel.G && pixel.R > pixel.B && pixel.R < 250)
+                    if (pixel.B < 120 && pixel.G < 120 && pixel.R > 150 && pixel.R < 250)
                     {
                         baitStill = true;
                     }
@@ -108,9 +108,9 @@ namespace Fiskarn
             }
         }
 
-        private void FindBaitLocation()
+        private void FindBaitLocation(Bitmap screenShot)
         {
-            var screen = _screenshotService.CaptureScreenShot(ScanArea);
+            var screen = _screenshotService.GetScreenshotFromImage(screenShot, ScanArea);
             var baitLocation = _imageLocator.FindInImage(screen);
 
             if (baitLocation == Point.Empty)

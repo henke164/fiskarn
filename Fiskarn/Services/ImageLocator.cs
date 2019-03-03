@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
 
 namespace Fiskarn.Services
 {
@@ -13,13 +14,13 @@ namespace Fiskarn.Services
                 for (var y = 0; y < sourceImage.Height; y += 2)
                 {
                     var pixel = sourceImage.GetPixel(x, y);
-                    if (pixel.R > pixel.B && pixel.R > pixel.G && pixel.R > 100 && pixel.R < 250)
+                    if (pixel.B < 120 && pixel.G < 120 && pixel.R > 150 && pixel.R < 250)
                     {
-                        if (redpoint == null || pixel.R > redpoint.RedAmount)
+                        if (redpoint == null || pixel.R > redpoint.Color.R)
                         {
                             redpoint = new RedPixel
                             {
-                                RedAmount = pixel.R,
+                                Color = pixel,
                                 X = x,
                                 Y = y
                             };
@@ -33,12 +34,13 @@ namespace Fiskarn.Services
                 return Point.Empty;
             }
 
+            Console.WriteLine(redpoint.Color);
             return new Point(redpoint.X, redpoint.Y);
         }
 
         internal class RedPixel
         {
-            public int RedAmount { get; set; }
+            public Color Color { get; set; }
             public int X { get; set; }
             public int Y { get; set; }
         }

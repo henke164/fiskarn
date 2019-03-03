@@ -19,7 +19,7 @@ namespace Fiskarn.Services
         {
             GameWindows = new List<GameWindow>();
             var processes = Process.GetProcessesByName("wow");
-            var windowsPerRow = processes.Length > 3 ? 3 : processes.Length;
+            var windowsPerRow = 2;
             var windowWidth = Screen.PrimaryScreen.Bounds.Width / windowsPerRow;
             SetWindowSizeAndPosition(processes, windowWidth);
         }
