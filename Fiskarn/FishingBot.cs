@@ -30,6 +30,8 @@ namespace Fiskarn
 
         private int _tries = 0;
 
+        private int _baitMovementCounter = 0;
+
         public FishingBot(ScreenShotService screenshotService, GameWindow gameWindow)
         {
             _gameWindow = gameWindow;
@@ -59,7 +61,7 @@ namespace Fiskarn
         {
             if (_currentState == BotState.FindBaitLocation)
             {
-                if (_tries > 5)
+                if (_tries > 10)
                 {
                     _tries = 0;
                     HandleKeyboardPress("1");
@@ -89,21 +91,33 @@ namespace Fiskarn
         {
             var rect = _screenshotService.CreateRectangleFromCenterPoint(CurrentBaitLocation, _baitScanSize);
             var bait = _screenshotService.GetScreenshotFromImage(screenShot, rect);
-            var baitStill = false;
+
             for (var x = 0; x < rect.Width; x++)
             {
                 for (var y = 0; y < rect.Height; y++)
                 {
                     var pixel = bait.GetPixel(x, y);
-                    if (pixel.B < 120 && pixel.G < 120 && pixel.R > 150 && pixel.R < 250)
+                    if (ColorHelper.IsRed(pixel))
                     {
-                        baitStill = true;
+                        _baitMovementCounter = 0;
+                        break;
                     }
+                    else
+                    {
+                        _baitMovementCounter++;
+                    }
+                }
+
+                if (_baitMovementCounter == 0)
+                {
+                    break;
                 }
             }
 
-            if (!baitStill)
+            if (_baitMovementCounter >= 50)
             {
+                Console.WriteLine("Movement value: " + _baitMovementCounter);
+                _baitMovementCounter = 0;
                 _currentState = BotState.Loot;
             }
         }

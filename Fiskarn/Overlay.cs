@@ -36,7 +36,7 @@ namespace Fiskarn
             _timer = new Timer();
             _timer.Tick += Update;
             _timer.Interval = 1000;
-            //_timer.Start();
+            _timer.Start();
         }
 
         private void Update(object sender, EventArgs e)
