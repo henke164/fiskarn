@@ -21,110 +21,113 @@ namespace Fiskarn
         private GameWindow _gameWindow;
         
         private BotState _currentState;
-
-        private ScreenShotService _screenshotService;
-
-        private ImageLocator _imageLocator;
-
-        private int _tries = 0;
-
+        
         private SoundDetector _soundDetector = new SoundDetector();
 
-        public FishingBot(ScreenShotService screenshotService, GameWindow gameWindow)
+        private CursorDetector _cursorDetector = new CursorDetector();
+
+        public FishingBot(GameWindow gameWindow)
         {
             _gameWindow = gameWindow;
 
-            _screenshotService = screenshotService;
-
-            _imageLocator = new ImageLocator();
-
             _currentState = BotState.FindBaitLocation;
 
+            ScanArea = GetScanArea();
+        }
+
+        public Rectangle GetScanArea()
+        {
             var screenCenter = new Point(
                 _gameWindow.WindowRectangle.X + (_gameWindow.WindowRectangle.Width / 2),
                 _gameWindow.WindowRectangle.Y + (_gameWindow.WindowRectangle.Height / 2));
-            
-            ScanArea = _screenshotService.CreateRectangleFromCenterPoint(screenCenter, new Size(400, 100));
+
+            var size = new Size(400, 100);
+
+            return new Rectangle(
+                screenCenter.X - (size.Width / 2),
+                screenCenter.Y - (size.Height / 8),
+                size.Width,
+                size.Height);
         }
 
-        public void Update(Bitmap screenShot)
+        public void Update()
         {
-            if (_currentState == BotState.FindBaitLocation)
+            switch (_currentState)
             {
-                if (_tries > 10)
-                {
-                    _tries = 0;
-                    HandleKeyboardPress("1");
-                    Thread.Sleep(1500);
-                }
-                FindBaitLocation(screenShot);
+                case BotState.FindBaitLocation:
+                    FindBaitLocation();
+                    break;
+
+                case BotState.WaitForBait:
+                    WaitForBait();
+                    break;
+
+                case BotState.Loot:
+                    Loot();
+                    break;
             }
-            else if (_currentState == BotState.WaitForBait)
-            {
-                _tries = 0;
-                WaitForBait();
-            }
-            else if (_currentState == BotState.Loot)
-            {
-                Thread.Sleep(1000);
-                Console.WriteLine("Clicking at " + CurrentBaitLocation.X + " " + CurrentBaitLocation.Y);
-                HandleMouseClick(CurrentBaitLocation);
-                _currentState = BotState.FindBaitLocation;
-                Thread.Sleep(1000);
-                HandleKeyboardPress("1");
-                Thread.Sleep(1500);
-            }
+
             Thread.Sleep(100);
         }
 
         private void WaitForBait()
         {
-            if (_soundDetector.HasVolume())
+            if (!_soundDetector.HasVolume())
             {
-                Console.WriteLine("Movement value: " + _baitMovementCounter);
-                _baitMovementCounter = 0;
-                _currentState = BotState.Loot;
-            }
-        }
-
-        private void FindBaitLocation(Bitmap screenShot)
-        {
-            var screen = _screenshotService.GetScreenshotFromImage(screenShot, ScanArea);
-            var baitLocation = _imageLocator.FindInImage(screen);
-
-            if (baitLocation == Point.Empty)
-            {
-                if (_tries == 0)
-                {
-                    Console.WriteLine("Looking for bait...");
-                }
-
-                _tries++;
-                Thread.Sleep(200);
                 return;
             }
 
-            CurrentBaitLocation = new Point(ScanArea.X + baitLocation.X, ScanArea.Y + baitLocation.Y);
-            _currentState = BotState.WaitForBait;
-            Console.WriteLine("Found bait location! at: " + CurrentBaitLocation.X + " " + CurrentBaitLocation.Y);
+            _currentState = BotState.Loot;
+        }
+
+        private void FindBaitLocation()
+        {
+            HandleKeyboardPress("1");
             Thread.Sleep(1500);
+
+            CurrentBaitLocation = Point.Empty;
+
+            for (var y = 0; y < ScanArea.Height && CurrentBaitLocation == Point.Empty; y += 20)
+            {
+                for (var x = 0; x < ScanArea.Width && CurrentBaitLocation == Point.Empty; x += 20)
+                {
+                    if (IsBaitLocation(ScanArea.X + x, ScanArea.Y + y))
+                    {
+                        CurrentBaitLocation = new Point(ScanArea.X + x, ScanArea.Y + y);
+                    }
+                }
+            }
+
+            if (CurrentBaitLocation != Point.Empty)
+            {
+                _currentState = BotState.WaitForBait;
+                Console.WriteLine("Found bait location! at: " + CurrentBaitLocation.X + " " + CurrentBaitLocation.Y);
+            }
+        }
+
+        private void Loot()
+        {
+            Console.WriteLine("Clicking at " + CurrentBaitLocation.X + " " + CurrentBaitLocation.Y);
+            HandleMouseClick(CurrentBaitLocation);
+            _currentState = BotState.FindBaitLocation;
         }
 
         private void HandleKeyboardPress(string key)
         {
-            InteractionHandler.QueueInteraction(() =>
-            {
-                SetForegroundWindow(_gameWindow.GameProcess.MainWindowHandle);
-                SendKeys.SendWait(key);
-            });
+            SetForegroundWindow(_gameWindow.GameProcess.MainWindowHandle);
+            SendKeys.SendWait(key);
+        }
+
+        private bool IsBaitLocation(int x, int y)
+        {
+            InputHandler.SetMousePosition(x, y);
+            Thread.Sleep(50);
+            return _cursorDetector.IsFishingCursor();
         }
 
         private void HandleMouseClick(Point screenPoint)
         {
-            InteractionHandler.QueueInteraction(() => 
-            { 
-                InputHandler.RightMouseClick(screenPoint.X, screenPoint.Y);
-            });
+            InputHandler.RightMouseClick(screenPoint.X, screenPoint.Y);
         }
     }
 }

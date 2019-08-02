@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -7,12 +6,12 @@ namespace Fiskarn
 {
     public class Overlay : Form
     {
-        private IList<FishingBot> _bots;
+        private FishingBot _bot;
         private Timer _timer;
 
-        public Overlay(IList<FishingBot> bots)
+        public Overlay(FishingBot bot)
         {
-            _bots = bots;
+            _bot = bot;
 
             TransparencyKey = Color.White;
             BackColor = Color.White;
@@ -44,10 +43,7 @@ namespace Fiskarn
             using (var g = CreateGraphics())
             {
                 g.Clear(Color.White);
-                foreach (var b in _bots)
-                {
-                    g.DrawRectangle(Pens.Green, b.ScanArea);
-                }
+                g.DrawRectangle(Pens.Green, _bot.ScanArea);
             }
         }
     }

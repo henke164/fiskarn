@@ -56,13 +56,10 @@
     <Compile Include="Overlay.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Services\ColorHelper.cs" />
-    <Compile Include="Services\ImageLocator.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\CursorDetector.cs" />
     <Compile Include="Services\InputHandler.cs" />
-    <Compile Include="Services\InteractionHandler.cs" />
-    <Compile Include="Services\ScreenShotService.cs" />
     <Compile Include="Services\GameWindowHandler.cs" />
     <Compile Include="Services\SoundDetector.cs" />
   </ItemGroup>
@@ -71,6 +68,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="cursor.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="icon.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

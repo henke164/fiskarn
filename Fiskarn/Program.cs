@@ -1,7 +1,5 @@
 ﻿using Fiskarn.Services;
 using System;
-using System.Collections.Generic;
-using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -10,57 +8,39 @@ namespace Fiskarn
 {
     class Program
     {
-        private static ScreenShotService ScreenshotService = new ScreenShotService();
         private static GameWindowHandler WindowHandler = new GameWindowHandler();
-        private static IList<FishingBot> Bots;
-        private static Bitmap _currentScreenShot;
+
         static void Main(string[] args)
         {
-            WindowHandler.ReinitializeGameWindows();
+            WindowHandler.ReinitializeGameWindow();
 
-            Bots = new List<FishingBot>();
-            foreach (var gameWindow in WindowHandler.GameWindows)
-            {
-                Bots.Add(new FishingBot(ScreenshotService, gameWindow));
-            }
+            var bot = new FishingBot(WindowHandler.GameWindow);
 
-            RunBots();
+            Task.Run(() => RunBot(bot));
 
-            InitializeOverlay();
+            InitializeOverlay(bot);
         }
 
-        private static void RunBots()
+        private static void RunBot(FishingBot bot)
         {
-            Task.Run(() => {
-                while (true)
+            Console.WriteLine("Starting in 5 seconds...");
+            Thread.Sleep(3000);
+            while (true)
+            {
+                try
                 {
-                    _currentScreenShot = ScreenshotService.CaptureScreenShot();
-                    Thread.Sleep(500);
-                    _currentScreenShot.Dispose();
+                    bot.Update();
                 }
-            });
-
-            foreach (var bot in Bots)
-            {
-                Task.Run(() => {
-                    while (true)
-                    {
-                        try
-                        {
-                            bot.Update(_currentScreenShot);
-                        }
-                        catch(Exception ex)
-                        {
-                            Console.WriteLine(ex.Message);
-                        }
-                    }
-                });
+                catch(Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
             }
         }
 
-        private static void InitializeOverlay()
+        private static void InitializeOverlay(FishingBot bot)
         {
-            var overlay = new Overlay(Bots);
+            var overlay = new Overlay(bot);
 
             Application.EnableVisualStyles();
 

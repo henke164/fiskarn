@@ -20,5 +20,10 @@ namespace Fiskarn.Services
             mouse_event(MOUSEEVENTF_RIGHTDOWN, xpos, ypos, 0, 0);
             mouse_event(MOUSEEVENTF_RIGHTUP, xpos, ypos, 0, 0);
         }
+
+        public static void SetMousePosition(int xpos, int ypos)
+        {
+            SetCursorPos(xpos, ypos);
+        }
     }
 }
