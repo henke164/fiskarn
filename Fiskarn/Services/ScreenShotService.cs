@@ -18,22 +18,18 @@ namespace Fiskarn.Services
         {
             try
             {
-                var screenbounds = Screen.PrimaryScreen.Bounds;
-                using (var bitmap = new Bitmap(screenbounds.Width, screenbounds.Height))
+                Bitmap clone;
+                var bounds = Screen.GetBounds(Point.Empty);
+
+                using (var bitmap = new Bitmap(bounds.Width, bounds.Height))
                 {
                     using (var g = Graphics.FromImage(bitmap))
                     {
-                        g.CopyFromScreen(
-                            0,
-                            0,
-                            0,
-                            0,
-                            screenbounds.Size,
-                            CopyPixelOperation.SourceCopy);
+                        g.CopyFromScreen(Point.Empty, Point.Empty, bounds.Size);
                     }
-                    var image = (Bitmap)bitmap.Clone();
-                    return image;
+                    clone = (Bitmap)bitmap.Clone();
                 }
+                return clone;
             }
             catch(Exception ex)
             {
