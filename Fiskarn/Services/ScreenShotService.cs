@@ -23,24 +23,27 @@ namespace Fiskarn.Services
 
         public Bitmap CaptureScreenShot()
         {
-            Bitmap clone;
-
             try
             {
-                using (var bitmap = new Bitmap(_bounds.Width, _bounds.Height))
+                Bitmap clone;
+                var bounds = Screen.GetBounds(Point.Empty);
+
+                using (var bitmap = new Bitmap(bounds.Width, bounds.Height))
                 {
                     using (var g = Graphics.FromImage(bitmap))
                     {
-                        g.CopyFromScreen(Point.Empty, Point.Empty, _bounds.Size);
+                        g.CopyFromScreen(Point.Empty, Point.Empty, bounds.Size);
                     }
-
                     clone = (Bitmap)bitmap.Clone();
                 }
                 return clone;
             }
-            catch
+            catch(Exception ex)
             {
-                return new Bitmap(_bounds.Width, _bounds.Height);
+                Console.WriteLine("Error");
+                Console.WriteLine(ex);
+                Thread.Sleep(1000);
+                return CaptureScreenShot();
             }
         }
 

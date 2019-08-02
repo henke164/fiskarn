@@ -51,7 +51,7 @@ namespace Fiskarn
         {
             if (_currentState == BotState.FindBaitLocation)
             {
-                if (_tries > 5)
+                if (_tries > 10)
                 {
                     _tries = 0;
                     HandleKeyboardPress("1");
@@ -81,6 +81,8 @@ namespace Fiskarn
         {
             if (_soundDetector.HasVolume())
             {
+                Console.WriteLine("Movement value: " + _baitMovementCounter);
+                _baitMovementCounter = 0;
                 _currentState = BotState.Loot;
             }
         }
