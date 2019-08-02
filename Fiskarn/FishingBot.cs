@@ -19,9 +19,7 @@ namespace Fiskarn
         public Rectangle ScanArea { get; set; }
 
         private GameWindow _gameWindow;
-
-        private Size _baitScanSize = new Size(5, 5);
-
+        
         private BotState _currentState;
 
         private ScreenShotService _screenshotService;
@@ -30,11 +28,11 @@ namespace Fiskarn
 
         private int _tries = 0;
 
+        private SoundDetector _soundDetector = new SoundDetector();
+
         public FishingBot(ScreenShotService screenshotService, GameWindow gameWindow)
         {
             _gameWindow = gameWindow;
-
-            LoadScanSize();
 
             _screenshotService = screenshotService;
 
@@ -49,12 +47,6 @@ namespace Fiskarn
             ScanArea = _screenshotService.CreateRectangleFromCenterPoint(screenCenter, new Size(400, 100));
         }
 
-        private void LoadScanSize()
-        {
-            var scanSize = int.Parse(ConfigurationSettings.AppSettings.Get("scansize"));
-            _baitScanSize = new Size(scanSize, scanSize);
-        }
-        
         public void Update(Bitmap screenShot)
         {
             if (_currentState == BotState.FindBaitLocation)
@@ -70,7 +62,7 @@ namespace Fiskarn
             else if (_currentState == BotState.WaitForBait)
             {
                 _tries = 0;
-                WaitForBait(screenShot);
+                WaitForBait();
             }
             else if (_currentState == BotState.Loot)
             {
@@ -85,24 +77,9 @@ namespace Fiskarn
             Thread.Sleep(100);
         }
 
-        private void WaitForBait(Bitmap screenShot)
+        private void WaitForBait()
         {
-            var rect = _screenshotService.CreateRectangleFromCenterPoint(CurrentBaitLocation, _baitScanSize);
-            var bait = _screenshotService.GetScreenshotFromImage(screenShot, rect);
-            var baitStill = false;
-            for (var x = 0; x < rect.Width; x++)
-            {
-                for (var y = 0; y < rect.Height; y++)
-                {
-                    var pixel = bait.GetPixel(x, y);
-                    if (pixel.B < 120 && pixel.G < 120 && pixel.R > 150 && pixel.R < 250)
-                    {
-                        baitStill = true;
-                    }
-                }
-            }
-
-            if (!baitStill)
+            if (_soundDetector.HasVolume())
             {
                 _currentState = BotState.Loot;
             }

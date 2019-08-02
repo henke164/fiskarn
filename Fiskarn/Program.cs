@@ -13,8 +13,7 @@ namespace Fiskarn
         private static ScreenShotService ScreenshotService = new ScreenShotService();
         private static GameWindowHandler WindowHandler = new GameWindowHandler();
         private static IList<FishingBot> Bots;
-        private static IList<Bitmap> _images;
-
+        private static Bitmap _currentScreenShot;
         static void Main(string[] args)
         {
             WindowHandler.ReinitializeGameWindows();
@@ -33,20 +32,11 @@ namespace Fiskarn
         private static void RunBots()
         {
             Task.Run(() => {
-                _images = new List<Bitmap>();
-                for (var x = 0; x < Bots.Count; x++)
-                {
-                    _images.Add(new Bitmap(100, 100));
-                }
-
                 while (true)
                 {
-                    var img = ScreenshotService.CaptureScreenShot();
-                    for (var x = 0; x < Bots.Count; x++)
-                    {
-                        _images[x] = (Bitmap)img.Clone();
-                    } 
-                    Thread.Sleep(1000 / 100);
+                    _currentScreenShot = ScreenshotService.CaptureScreenShot();
+                    Thread.Sleep(500);
+                    _currentScreenShot.Dispose();
                 }
             });
 
@@ -57,7 +47,7 @@ namespace Fiskarn
                     {
                         try
                         {
-                            bot.Update((Bitmap)_images[Bots.IndexOf(bot)]);
+                            bot.Update(_currentScreenShot);
                         }
                         catch(Exception ex)
                         {

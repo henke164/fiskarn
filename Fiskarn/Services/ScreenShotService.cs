@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -7,6 +8,12 @@ namespace Fiskarn.Services
 {
     public class ScreenShotService
     {
+        private Rectangle _bounds;
+
+        public ScreenShotService()
+        {
+            _bounds = Screen.GetBounds(Point.Empty);
+        }
         public Rectangle CreateRectangleFromCenterPoint(Point center, Size size)
             => new Rectangle(
                 center.X - (size.Width / 2),
@@ -16,31 +23,24 @@ namespace Fiskarn.Services
 
         public Bitmap CaptureScreenShot()
         {
+            Bitmap clone;
+
             try
             {
-                var screenbounds = Screen.PrimaryScreen.Bounds;
-                using (var bitmap = new Bitmap(screenbounds.Width, screenbounds.Height))
+                using (var bitmap = new Bitmap(_bounds.Width, _bounds.Height))
                 {
                     using (var g = Graphics.FromImage(bitmap))
                     {
-                        g.CopyFromScreen(
-                            0,
-                            0,
-                            0,
-                            0,
-                            screenbounds.Size,
-                            CopyPixelOperation.SourceCopy);
+                        g.CopyFromScreen(Point.Empty, Point.Empty, _bounds.Size);
                     }
-                    var image = (Bitmap)bitmap.Clone();
-                    return image;
+
+                    clone = (Bitmap)bitmap.Clone();
                 }
+                return clone;
             }
-            catch(Exception ex)
+            catch
             {
-                Console.WriteLine("Error");
-                Console.WriteLine(ex);
-                Thread.Sleep(1000);
-                return CaptureScreenShot();
+                return new Bitmap(_bounds.Width, _bounds.Height);
             }
         }
 
