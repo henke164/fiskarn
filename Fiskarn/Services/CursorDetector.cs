@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Fiskarn.Services
 {
@@ -43,7 +39,6 @@ namespace Fiskarn.Services
         public bool IsFishingCursor()
         {
             var currentCursor = GetCurrentCursorIcon();
-
             for (var x = 0; x < currentCursor.Width; x += 2)
             {
                 for (var y = 0; y < currentCursor.Height; y += 2)
