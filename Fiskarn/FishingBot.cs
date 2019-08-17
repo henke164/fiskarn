@@ -17,17 +17,19 @@ namespace Fiskarn
         public Point CurrentBaitLocation { get; set; }
 
         public Rectangle ScanArea { get; set; }
-
+        
         private GameWindow _gameWindow;
         
         private BotState _currentState;
-        
-        private SoundDetector _soundDetector = new SoundDetector();
+
+        private SoundDetector _soundDetector;
 
         private CursorDetector _cursorDetector = new CursorDetector();
 
-        public FishingBot(GameWindow gameWindow)
+        public FishingBot(GameWindow gameWindow, int audioDeviceIndex)
         {
+            _soundDetector = new SoundDetector(audioDeviceIndex);
+
             _gameWindow = gameWindow;
 
             _currentState = BotState.FindBaitLocation;
@@ -55,7 +57,8 @@ namespace Fiskarn
             switch (_currentState)
             {
                 case BotState.FindBaitLocation:
-                    FindBaitLocation();
+                    TaskQueue.QueueTask(FindBaitLocation);
+                    _currentState = BotState.IsFindingBaitLocation;
                     break;
 
                 case BotState.WaitForBait:
@@ -63,7 +66,8 @@ namespace Fiskarn
                     break;
 
                 case BotState.Loot:
-                    Loot();
+                    TaskQueue.QueuePriorityTask(Loot);
+                    _currentState = BotState.IsLooting;
                     break;
             }
 
@@ -115,6 +119,7 @@ namespace Fiskarn
         private void HandleKeyboardPress(string key)
         {
             SetForegroundWindow(_gameWindow.GameProcess.MainWindowHandle);
+            Thread.Sleep(50);
             SendKeys.SendWait(key);
         }
 

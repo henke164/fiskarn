@@ -62,6 +62,7 @@
     <Compile Include="Services\InputHandler.cs" />
     <Compile Include="Services\GameWindowHandler.cs" />
     <Compile Include="Services\SoundDetector.cs" />
+    <Compile Include="Services\TaskQueue.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

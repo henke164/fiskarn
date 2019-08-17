@@ -18,11 +18,11 @@ namespace Fiskarn.Services
         public static void RightMouseClick(int xpos, int ypos)
         {
             SetCursorPos(xpos, ypos);
-            Thread.Sleep(500);
+            Thread.Sleep(100);
             mouse_event(MOUSEEVENTF_RIGHTDOWN, xpos, ypos, 0, 0);
-            Thread.Sleep(500);
+            Thread.Sleep(150);
             mouse_event(MOUSEEVENTF_RIGHTUP, xpos, ypos, 0, 0);
-            Thread.Sleep(500);
+            Thread.Sleep(1000);
         }
 
         public static void SetMousePosition(int xpos, int ypos)

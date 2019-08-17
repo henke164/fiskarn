@@ -38,20 +38,28 @@ namespace Fiskarn.Services
 
         public bool IsFishingCursor()
         {
-            var currentCursor = GetCurrentCursorIcon();
-            for (var x = 0; x < currentCursor.Width; x += 2)
+            try
             {
-                for (var y = 0; y < currentCursor.Height; y += 2)
+                var currentCursor = GetCurrentCursorIcon();
+                for (var x = 0; x < currentCursor.Width; x += 2)
                 {
-                    var color1 = currentCursor.GetPixel(x, y);
-                    var color2 = _fishingCursorIcon.GetPixel(x, y);
-                    if (color1.R != color2.R || color1.G != color2.G || color1.B != color2.B)
+                    for (var y = 0; y < currentCursor.Height; y += 2)
                     {
-                        return false;
+                        var color1 = currentCursor.GetPixel(x, y);
+                        var color2 = _fishingCursorIcon.GetPixel(x, y);
+                        if (color1.R != color2.R || color1.G != color2.G || color1.B != color2.B)
+                        {
+                            return false;
+                        }
                     }
                 }
+                return true;
             }
-            return true;
+            catch
+            {
+                Console.WriteLine("Error reading cursor");
+                return false;
+            }
         }
 
         public Bitmap GetCurrentCursorIcon()
