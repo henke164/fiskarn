@@ -11,9 +11,6 @@ namespace Fiskarn
 {
     public class FishingBot
     {
-        [DllImport("User32.dll")]
-        static extern int SetForegroundWindow(IntPtr point);
-
         public Point CurrentBaitLocation { get; set; }
 
         public Rectangle ScanArea { get; set; }
@@ -87,7 +84,7 @@ namespace Fiskarn
 
         private void FindBaitLocation()
         {
-            HandleKeyboardPress("1");
+            HandleKeyboardPress(Keys.D1);
             Thread.Sleep(1500);
 
             CurrentBaitLocation = Point.Empty;
@@ -121,11 +118,9 @@ namespace Fiskarn
             _currentState = BotState.FindBaitLocation;
         }
 
-        private void HandleKeyboardPress(string key)
+        private void HandleKeyboardPress(Keys key)
         {
-            SetForegroundWindow(_gameWindow.GameProcess.MainWindowHandle);
-            Thread.Sleep(50);
-            SendKeys.SendWait(key);
+            InputHandler.PressKey(_gameWindow.GameProcess.MainWindowHandle, key);
         }
 
         private bool IsBaitLocation(int x, int y)
