@@ -28,10 +28,9 @@ namespace Fiskarn.Services
         {
             var height = (int)(width * 0.75);
             var left = 0;
-            var top = 0;
             for (var i = 0; i < processes.Length; i++)
             {
-                var rectangle = new Rectangle(left * width, top * height, width, height);
+                var rectangle = new Rectangle(left * width, 0, width, height);
 
                 MoveWindow(
                     processes[i].MainWindowHandle,
@@ -47,9 +46,8 @@ namespace Fiskarn.Services
                     WindowRectangle = rectangle
                 });
 
-                if (left == 3)
+                if (left == 1)
                 {
-                    top++;
                     left = 0;
                 }
                 else

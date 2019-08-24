@@ -57,8 +57,8 @@ namespace Fiskarn
             switch (_currentState)
             {
                 case BotState.FindBaitLocation:
-                    TaskQueue.QueueTask(FindBaitLocation);
                     _currentState = BotState.IsFindingBaitLocation;
+                    TaskQueue.QueueTask(FindBaitLocation);
                     break;
 
                 case BotState.WaitForBait:
@@ -66,8 +66,8 @@ namespace Fiskarn
                     break;
 
                 case BotState.Loot:
-                    TaskQueue.QueuePriorityTask(Loot);
                     _currentState = BotState.IsLooting;
+                    TaskQueue.QueuePriorityTask(Loot);
                     break;
             }
 
@@ -81,6 +81,7 @@ namespace Fiskarn
                 return;
             }
 
+            Console.WriteLine("Sound from " + _soundDetector.DeviceIndex);
             _currentState = BotState.Loot;
         }
 
@@ -107,6 +108,10 @@ namespace Fiskarn
                 _currentState = BotState.WaitForBait;
                 Console.WriteLine("Found bait location! at: " + CurrentBaitLocation.X + " " + CurrentBaitLocation.Y);
             }
+            else
+            {
+                _currentState = BotState.FindBaitLocation;
+            }
         }
 
         private void Loot()
@@ -132,6 +137,8 @@ namespace Fiskarn
 
         private void HandleMouseClick(Point screenPoint)
         {
+            SetForegroundWindow(_gameWindow.GameProcess.MainWindowHandle);
+            Thread.Sleep(50);
             InputHandler.RightMouseClick(screenPoint.X, screenPoint.Y);
         }
     }

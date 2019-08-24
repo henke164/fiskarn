@@ -1,11 +1,11 @@
 ﻿using NAudio.CoreAudioApi;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Fiskarn.Services
 {
     public class SoundDetector
     {
+        public int DeviceIndex { get; }
+
         private MMDevice _device;
 
         public SoundDetector(int deviceIndex)
@@ -13,11 +13,12 @@ namespace Fiskarn.Services
             var enumerator = new MMDeviceEnumerator();
             var devices = enumerator.EnumerateAudioEndPoints(DataFlow.All, DeviceState.Active);
             _device = devices[deviceIndex];
+            DeviceIndex = deviceIndex;
         }
 
         public bool HasVolume()
         {
-            return _device.AudioMeterInformation.MasterPeakValue > 0.3;
+            return _device.AudioMeterInformation.MasterPeakValue > 0.2;
         }
 
         public float GetVolume()

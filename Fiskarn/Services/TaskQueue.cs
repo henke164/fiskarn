@@ -28,7 +28,7 @@ namespace Fiskarn.Services
             if (!_running)
             {
                 _running = true;
-                Task.Run(Update);
+                Task.Run(() => Update());
             }
         }
 
