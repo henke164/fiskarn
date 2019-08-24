@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
+using System.Windows.Forms;
 
 namespace Fiskarn.Services
 {
@@ -57,7 +58,8 @@ namespace Fiskarn.Services
             }
             catch
             {
-                Console.WriteLine("Error reading cursor");
+                Application.Restart();
+                Application.Exit();
                 return false;
             }
         }

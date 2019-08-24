@@ -1,5 +1,7 @@
-﻿using System.Runtime.InteropServices;
+﻿using System;
+using System.Runtime.InteropServices;
 using System.Threading;
+using System.Windows.Forms;
 
 namespace Fiskarn.Services
 {
@@ -11,9 +13,16 @@ namespace Fiskarn.Services
         [DllImport("user32.dll")]
         public static extern void mouse_event(int dwFlags, int dx, int dy, int cButtons, int dwExtraInfo);
 
-        public const int MOUSEEVENTF_RIGHTDOWN = 0x08;
+        [DllImport("user32.dll")]
+        public static extern IntPtr SendMessage(IntPtr hWnd, int Msg, int wParam, int lParam);
 
-        public const int MOUSEEVENTF_RIGHTUP = 0x10;
+        private const int WM_KEYDOWN = 0x100;
+
+        private const int WM_KEYUP = 0x101;
+
+        private const int MOUSEEVENTF_RIGHTDOWN = 0x08;
+
+        private const int MOUSEEVENTF_RIGHTUP = 0x10;
 
         public static void RightMouseClick(int xpos, int ypos)
         {
@@ -28,6 +37,13 @@ namespace Fiskarn.Services
         public static void SetMousePosition(int xpos, int ypos)
         {
             SetCursorPos(xpos, ypos);
+        }
+
+        public static void PressKey(IntPtr hWnd, Keys key, int ms = 0)
+        {
+            SendMessage(hWnd, WM_KEYDOWN, Convert.ToInt32(key), 0);
+            Thread.Sleep(ms);
+            SendMessage(hWnd, WM_KEYUP, Convert.ToInt32(key), 0);
         }
     }
 }
