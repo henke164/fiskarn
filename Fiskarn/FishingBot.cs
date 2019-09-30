@@ -11,6 +11,9 @@ namespace Fiskarn
 {
     public class FishingBot
     {
+        [DllImport("User32.dll")]
+        static extern int SetForegroundWindow(IntPtr point);
+
         public Point CurrentBaitLocation { get; set; }
 
         public Rectangle ScanArea { get; set; }
@@ -22,6 +25,8 @@ namespace Fiskarn
         private SoundDetector _soundDetector;
 
         private CursorDetector _cursorDetector = new CursorDetector();
+
+        private DateTime _fishingStarted = DateTime.MinValue;
 
         public FishingBot(GameWindow gameWindow, int audioDeviceIndex)
         {
@@ -54,11 +59,18 @@ namespace Fiskarn
             switch (_currentState)
             {
                 case BotState.FindBaitLocation:
+                    _fishingStarted = DateTime.Now;
                     _currentState = BotState.IsFindingBaitLocation;
                     TaskQueue.QueueTask(FindBaitLocation);
                     break;
 
                 case BotState.WaitForBait:
+                    var time = DateTime.Now - _fishingStarted;
+                    if (time.TotalSeconds > 30)
+                    {
+                        Console.WriteLine("Restart");
+                        _currentState = BotState.FindBaitLocation;
+                    }
                     WaitForBait();
                     break;
 
@@ -120,6 +132,7 @@ namespace Fiskarn
 
         private void HandleKeyboardPress(Keys key)
         {
+            SetForegroundWindow(_gameWindow.GameProcess.MainWindowHandle);
             InputHandler.PressKey(_gameWindow.GameProcess.MainWindowHandle, key);
         }
 
@@ -132,7 +145,6 @@ namespace Fiskarn
 
         private void HandleMouseClick(Point screenPoint)
         {
-            SetForegroundWindow(_gameWindow.GameProcess.MainWindowHandle);
             Thread.Sleep(50);
             InputHandler.RightMouseClick(screenPoint.X, screenPoint.Y);
         }
