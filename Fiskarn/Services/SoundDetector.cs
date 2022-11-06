@@ -1,4 +1,6 @@
 ﻿using NAudio.CoreAudioApi;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Fiskarn.Services
 {
@@ -16,9 +18,21 @@ namespace Fiskarn.Services
             DeviceIndex = deviceIndex;
         }
 
+        public static List<string> GetAllDevices()
+        {
+            var enumerator = new MMDeviceEnumerator();
+            var devices = enumerator.EnumerateAudioEndPoints(DataFlow.All, DeviceState.Active);
+            return devices.Select(d => d.FriendlyName).ToList();
+        }
+
         public bool HasVolume()
         {
             return _device.AudioMeterInformation.MasterPeakValue > 0.2;
+        }
+
+        public string GetDeviceName()
+        {
+            return _device.FriendlyName;
         }
 
         public float GetVolume()

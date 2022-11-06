@@ -1,7 +1,6 @@
 ﻿using Fiskarn.Models;
 using Fiskarn.Services;
 using System;
-using System.Configuration;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -17,24 +16,25 @@ namespace Fiskarn
         public Point CurrentBaitLocation { get; set; }
 
         public Rectangle ScanArea { get; set; }
-        
+
+        public int ProcessId;
+        public SoundDetector SoundDetector;
+        private bool _shouldAbort = false;
+
         private GameWindow _gameWindow;
-        
         private BotState _currentState;
-
-        private SoundDetector _soundDetector;
-
         private CursorDetector _cursorDetector = new CursorDetector();
-
         private DateTime _fishingStarted = DateTime.MinValue;
 
         public FishingBot(GameWindow gameWindow, int audioDeviceIndex)
         {
-            _soundDetector = new SoundDetector(audioDeviceIndex);
+            SoundDetector = new SoundDetector(audioDeviceIndex);
 
             _gameWindow = gameWindow;
 
             _currentState = BotState.FindBaitLocation;
+
+            ProcessId = _gameWindow.GameProcess.Id;
 
             ScanArea = GetScanArea();
         }
@@ -56,6 +56,8 @@ namespace Fiskarn
 
         public void Update()
         {
+            _shouldAbort = false;
+
             switch (_currentState)
             {
                 case BotState.FindBaitLocation:
@@ -83,14 +85,20 @@ namespace Fiskarn
             Thread.Sleep(100);
         }
 
+        public void Abort()
+        {
+            _shouldAbort = true;
+            _currentState = BotState.FindBaitLocation;
+        }
+
         private void WaitForBait()
         {
-            if (!_soundDetector.HasVolume())
+            if (!SoundDetector.HasVolume())
             {
                 return;
             }
 
-            Console.WriteLine("Sound from " + _soundDetector.DeviceIndex);
+            Console.WriteLine("Sound from " + SoundDetector.DeviceIndex);
             _currentState = BotState.Loot;
         }
 
@@ -101,13 +109,19 @@ namespace Fiskarn
 
             CurrentBaitLocation = Point.Empty;
 
-            for (var y = 0; y < ScanArea.Height && CurrentBaitLocation == Point.Empty; y += 20)
+            var offset = new Point(5, 5);
+            for (var y = 0; y < ScanArea.Height && CurrentBaitLocation == Point.Empty; y += 25)
             {
-                for (var x = 0; x < ScanArea.Width && CurrentBaitLocation == Point.Empty; x += 20)
+                for (var x = 0; x < ScanArea.Width && CurrentBaitLocation == Point.Empty; x += 25)
                 {
+                    if (_shouldAbort)
+                    {
+                        return;
+                    }
+
                     if (IsBaitLocation(ScanArea.X + x, ScanArea.Y + y))
                     {
-                        CurrentBaitLocation = new Point(ScanArea.X + x, ScanArea.Y + y);
+                        CurrentBaitLocation = new Point(ScanArea.X + x + offset.X, ScanArea.Y + y + offset.Y);
                     }
                 }
             }
@@ -139,7 +153,7 @@ namespace Fiskarn
         private bool IsBaitLocation(int x, int y)
         {
             InputHandler.SetMousePosition(x, y);
-            Thread.Sleep(50);
+            Thread.Sleep(5);
             return _cursorDetector.IsFishingCursor();
         }
 

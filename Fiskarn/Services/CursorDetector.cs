@@ -30,11 +30,12 @@ namespace Fiskarn.Services
         [DllImport("user32.dll")]
         static extern bool DrawIcon(IntPtr hDC, int X, int Y, IntPtr hIcon);
 
-        private Bitmap _fishingCursorIcon;
+        private Bitmap _originalCursor;
+
+        private Point? _bestDiffLocation = null;
 
         public CursorDetector()
         {
-            _fishingCursorIcon = (Bitmap)Bitmap.FromFile("cursor.png");
         }
 
         public bool IsFishingCursor()
@@ -43,22 +44,44 @@ namespace Fiskarn.Services
             {
                 using (var currentCursor = GetCurrentCursorIcon())
                 {
+                    if (_originalCursor == null)
+                    {
+                        _originalCursor = (Bitmap)currentCursor.Clone();
+                        return false;
+                    }
+
+                    if (_bestDiffLocation.HasValue)
+                    {
+                        var x = _bestDiffLocation.Value.X;
+                        var y = _bestDiffLocation.Value.Y;
+                        var color1 = currentCursor.GetPixel(x, y);
+                        var color2 = _originalCursor.GetPixel(x, y);
+                        if (color1.R != color2.R || color1.G != color2.G || color1.B != color2.B)
+                        {
+                            return true;
+                        }
+                    }
+
                     for (var x = 0; x < currentCursor.Width; x += 2)
                     {
                         for (var y = 0; y < currentCursor.Height; y += 2)
                         {
                             var color1 = currentCursor.GetPixel(x, y);
-                            var color2 = _fishingCursorIcon.GetPixel(x, y);
+                            var color2 = _originalCursor.GetPixel(x, y);
                             if (color1.R != color2.R || color1.G != color2.G || color1.B != color2.B)
                             {
-                                return false;
+                                if (!_bestDiffLocation.HasValue)
+                                {
+                                    _bestDiffLocation = new Point(x, y);
+                                }
+                                return true;
                             }
                         }
                     }
-                    return true;
+                    return false;
                 }
             }
-            catch
+            catch (Exception ex)
             {
                 Application.Restart();
                 Application.Exit();

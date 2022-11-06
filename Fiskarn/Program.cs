@@ -1,10 +1,8 @@
 ﻿using Fiskarn.Services;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace Fiskarn
 {
@@ -28,8 +26,6 @@ namespace Fiskarn
             Thread.Sleep(5000);
 
             RunBots();
-
-            InitializeOverlay();
         }
 
         private static void RunBots()
@@ -50,15 +46,6 @@ namespace Fiskarn
                     }
                 });
             }
-        }
-
-        private static void InitializeOverlay()
-        {
-            var overlay = new Overlay(Bots);
-
-            Application.EnableVisualStyles();
-
-            Application.Run(overlay);
         }
     }
 }
