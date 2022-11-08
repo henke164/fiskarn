@@ -110,9 +110,9 @@ namespace Fiskarn
             CurrentBaitLocation = Point.Empty;
 
             var offset = new Point(5, 5);
-            for (var y = 0; y < ScanArea.Height && CurrentBaitLocation == Point.Empty; y += 25)
+            for (var y = 0; y < ScanArea.Height && CurrentBaitLocation == Point.Empty; y += 10)
             {
-                for (var x = 0; x < ScanArea.Width && CurrentBaitLocation == Point.Empty; x += 25)
+                for (var x = 0; x < ScanArea.Width && CurrentBaitLocation == Point.Empty; x += 10)
                 {
                     if (_shouldAbort)
                     {
@@ -153,7 +153,15 @@ namespace Fiskarn
         private bool IsBaitLocation(int x, int y)
         {
             InputHandler.SetMousePosition(x, y);
-            Thread.Sleep(5);
+            if (x == ScanArea.X && y == ScanArea.Y)
+            {
+                Thread.Sleep(500);
+            }
+            else
+            {
+                Thread.Sleep(5);
+            }
+
             return _cursorDetector.IsFishingCursor();
         }
 

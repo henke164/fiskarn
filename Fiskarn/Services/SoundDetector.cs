@@ -1,4 +1,5 @@
 ﻿using NAudio.CoreAudioApi;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -6,6 +7,8 @@ namespace Fiskarn.Services
 {
     public class SoundDetector
     {
+        public static float Sensitivity = 0.04f;
+
         public int DeviceIndex { get; }
 
         private MMDevice _device;
@@ -27,7 +30,7 @@ namespace Fiskarn.Services
 
         public bool HasVolume()
         {
-            return _device.AudioMeterInformation.MasterPeakValue > 0.2;
+            return _device.AudioMeterInformation.MasterPeakValue > Sensitivity;
         }
 
         public string GetDeviceName()

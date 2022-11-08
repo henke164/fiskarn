@@ -23,6 +23,7 @@ namespace Fiskarn.UI
             panel1.HorizontalScroll.Maximum = 0;
             panel1.AutoScroll = true;
 
+            textBox1.Text = SoundDetector.Sensitivity.ToString();
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -100,6 +101,15 @@ namespace Fiskarn.UI
             foreach (var bot in _fishingBots)
             {
                 bot.Update();
+            }
+        }
+
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+            var sens = textBox1.Text;
+            if (float.TryParse(sens, out float sensitivity))
+            {
+                SoundDetector.Sensitivity = sensitivity;
             }
         }
     }
