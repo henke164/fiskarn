@@ -39,6 +39,11 @@ namespace Fiskarn
             ScanArea = GetScanArea();
         }
 
+        public void Restart()
+        {
+            _cursorDetector = new CursorDetector();
+        }
+
         public Rectangle GetScanArea()
         {
             var screenCenter = new Point(
@@ -110,9 +115,9 @@ namespace Fiskarn
             CurrentBaitLocation = Point.Empty;
 
             var offset = new Point(5, 5);
-            for (var y = 0; y < ScanArea.Height && CurrentBaitLocation == Point.Empty; y += 10)
+            for (var y = 0; y < ScanArea.Height && CurrentBaitLocation == Point.Empty; y += 20)
             {
-                for (var x = 0; x < ScanArea.Width && CurrentBaitLocation == Point.Empty; x += 10)
+                for (var x = 0; x < ScanArea.Width && CurrentBaitLocation == Point.Empty; x += 15)
                 {
                     if (_shouldAbort)
                     {

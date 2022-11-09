@@ -84,10 +84,9 @@ namespace Fiskarn.Services
             }
             catch (Exception ex)
             {
-                Application.Restart();
-                Application.Exit();
+                _originalCursor = null;
+                return false;
             }
-            return false;
         }
 
         public Bitmap GetCurrentCursorIcon()

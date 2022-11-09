@@ -84,6 +84,10 @@ namespace Fiskarn.UI
 
         private void RunBots()
         {
+            foreach (var bot in _fishingBots)
+            {
+                bot.Restart();
+            }
             timer1.Start();
         }
 
