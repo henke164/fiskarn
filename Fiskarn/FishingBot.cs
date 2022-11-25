@@ -13,17 +13,13 @@ namespace Fiskarn
         [DllImport("User32.dll")]
         static extern int SetForegroundWindow(IntPtr point);
 
-        public Point CurrentBaitLocation { get; set; }
-
         public Rectangle ScanArea { get; set; }
 
         public int ProcessId;
         public SoundDetector SoundDetector;
-        private bool _shouldAbort = false;
 
         private GameWindow _gameWindow;
         private BotState _currentState;
-        private CursorDetector _cursorDetector = new CursorDetector();
         private DateTime _fishingStarted = DateTime.MinValue;
 
         public FishingBot(GameWindow gameWindow, int audioDeviceIndex)
@@ -32,16 +28,11 @@ namespace Fiskarn
 
             _gameWindow = gameWindow;
 
-            _currentState = BotState.FindBaitLocation;
+            _currentState = BotState.CastBait;
 
             ProcessId = _gameWindow.GameProcess.Id;
 
             ScanArea = GetScanArea();
-        }
-
-        public void Restart()
-        {
-            _cursorDetector = new CursorDetector();
         }
 
         public Rectangle GetScanArea()
@@ -61,14 +52,11 @@ namespace Fiskarn
 
         public void Update()
         {
-            _shouldAbort = false;
-
             switch (_currentState)
             {
-                case BotState.FindBaitLocation:
+                case BotState.CastBait:
                     _fishingStarted = DateTime.Now;
-                    _currentState = BotState.IsFindingBaitLocation;
-                    TaskQueue.QueueTask(FindBaitLocation);
+                    TaskQueue.QueueTask(CastBait);
                     break;
 
                 case BotState.WaitForBait:
@@ -76,7 +64,7 @@ namespace Fiskarn
                     if (time.TotalSeconds > 30)
                     {
                         Console.WriteLine("Restart");
-                        _currentState = BotState.FindBaitLocation;
+                        _currentState = BotState.CastBait;
                     }
                     WaitForBait();
                     break;
@@ -92,8 +80,7 @@ namespace Fiskarn
 
         public void Abort()
         {
-            _shouldAbort = true;
-            _currentState = BotState.FindBaitLocation;
+            _currentState = BotState.CastBait;
         }
 
         private void WaitForBait()
@@ -107,73 +94,23 @@ namespace Fiskarn
             _currentState = BotState.Loot;
         }
 
-        private void FindBaitLocation()
+        private void CastBait()
         {
             HandleKeyboardPress(Keys.D1);
-            Thread.Sleep(1500);
-
-            CurrentBaitLocation = Point.Empty;
-
-            var offset = new Point(5, 5);
-            for (var y = 0; y < ScanArea.Height && CurrentBaitLocation == Point.Empty; y += 20)
-            {
-                for (var x = 0; x < ScanArea.Width && CurrentBaitLocation == Point.Empty; x += 15)
-                {
-                    if (_shouldAbort)
-                    {
-                        return;
-                    }
-
-                    if (IsBaitLocation(ScanArea.X + x, ScanArea.Y + y))
-                    {
-                        CurrentBaitLocation = new Point(ScanArea.X + x + offset.X, ScanArea.Y + y + offset.Y);
-                    }
-                }
-            }
-
-            if (CurrentBaitLocation != Point.Empty)
-            {
-                _currentState = BotState.WaitForBait;
-                Console.WriteLine("Found bait location! at: " + CurrentBaitLocation.X + " " + CurrentBaitLocation.Y);
-            }
-            else
-            {
-                _currentState = BotState.FindBaitLocation;
-            }
+            _currentState = BotState.WaitForBait;
         }
 
         private void Loot()
         {
-            Console.WriteLine("Clicking at " + CurrentBaitLocation.X + " " + CurrentBaitLocation.Y);
-            HandleMouseClick(CurrentBaitLocation);
-            _currentState = BotState.FindBaitLocation;
+            HandleKeyboardPress(Keys.F);
+            Thread.Sleep(1500);
+            _currentState = BotState.CastBait;
         }
 
         private void HandleKeyboardPress(Keys key)
         {
             SetForegroundWindow(_gameWindow.GameProcess.MainWindowHandle);
             InputHandler.PressKey(_gameWindow.GameProcess.MainWindowHandle, key);
-        }
-
-        private bool IsBaitLocation(int x, int y)
-        {
-            InputHandler.SetMousePosition(x, y);
-            if (x == ScanArea.X && y == ScanArea.Y)
-            {
-                Thread.Sleep(500);
-            }
-            else
-            {
-                Thread.Sleep(5);
-            }
-
-            return _cursorDetector.IsFishingCursor();
-        }
-
-        private void HandleMouseClick(Point screenPoint)
-        {
-            Thread.Sleep(50);
-            InputHandler.RightMouseClick(screenPoint.X, screenPoint.Y);
         }
     }
 }

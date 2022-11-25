@@ -13,6 +13,24 @@ namespace Fiskarn.Services
 
         private MMDevice _device;
 
+        public int CurrentPeakVolume {
+            get
+            {
+                var val = (int)((_device.AudioMeterInformation.MasterPeakValue / Sensitivity) * 100);
+                if (val < 0)
+                {
+                    return 0;
+                }
+
+                if (val > 100)
+                {
+                    return 100;
+                }
+
+                return val;
+            }
+        }
+
         public SoundDetector(int deviceIndex)
         {
             var enumerator = new MMDeviceEnumerator();

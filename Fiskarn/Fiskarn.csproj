@@ -55,7 +55,6 @@
     <Compile Include="Models\GameWindow.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Services\CursorDetector.cs" />
     <Compile Include="Services\InputHandler.cs" />
     <Compile Include="Services\GameWindowHandler.cs" />
     <Compile Include="Services\SoundDetector.cs" />

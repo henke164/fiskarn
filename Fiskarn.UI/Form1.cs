@@ -23,7 +23,7 @@ namespace Fiskarn.UI
             panel1.HorizontalScroll.Maximum = 0;
             panel1.AutoScroll = true;
 
-            textBox1.Text = SoundDetector.Sensitivity.ToString();
+            numericUpDown1.Value = (int)(SoundDetector.Sensitivity * 100);
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -84,10 +84,6 @@ namespace Fiskarn.UI
 
         private void RunBots()
         {
-            foreach (var bot in _fishingBots)
-            {
-                bot.Restart();
-            }
             timer1.Start();
         }
 
@@ -108,13 +104,15 @@ namespace Fiskarn.UI
             }
         }
 
-        private void textBox1_TextChanged(object sender, EventArgs e)
+        private void numericUpDown1_ValueChanged(object sender, EventArgs e)
         {
-            var sens = textBox1.Text;
-            if (float.TryParse(sens, out float sensitivity))
-            {
-                SoundDetector.Sensitivity = sensitivity;
-            }
+            var sensitivity = numericUpDown1.Value;
+            SoundDetector.Sensitivity = (float)(sensitivity / 100);
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("Run scripts:\r\n/console SoftTargetInteractArc 2\r\n/console SoftTargetInteractRange 30\r\n\r\nBind fishing to 1, and interact with target to F");
         }
     }
 }

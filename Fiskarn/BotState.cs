@@ -2,8 +2,7 @@
 {
     public enum BotState
     {
-        FindBaitLocation,
-        IsFindingBaitLocation,
+        CastBait,
         WaitForBait,
         Loot,
         IsLooting,
