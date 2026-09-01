@@ -21,11 +21,17 @@ namespace Fiskarn.UI
             }
 
             comboBox1.SelectedItem = Bot.SoundDetector.GetDeviceName();
+            timer1.Start();
         }
 
         private void comboBox1_SelectedIndexChanged(object sender, System.EventArgs e)
         {
             Bot.SoundDetector = new SoundDetector(comboBox1.SelectedIndex);
+        }
+
+        private void timer1_Tick(object sender, System.EventArgs e)
+        {
+            progressBar1.Value = Bot.SoundDetector.CurrentPeakVolume;
         }
     }
 }
